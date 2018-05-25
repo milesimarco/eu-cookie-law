@@ -24,7 +24,8 @@
         array('cc-disablecookie', __('Revoke cookie consent', 'eu-cookie-law')),
         array('cc-cookieenabled', __('Cookies are enabled', 'eu-cookie-law')),
         array('cc-cookiedisabled', __('Cookies are disabled<br>Accept Cookies by clicking "%s" in the banner.', 'eu-cookie-law')),
-        array('networkshareurl', ecl_getshareurl())
+        array('networkshareurl', ecl_getshareurl()),
+        array('exclude_script', '0')
     );
 
     $my_options = get_option('peadig_eucookie');

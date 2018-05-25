@@ -1,12 +1,12 @@
 === EU Cookie Law ===
 Contributors: alexmoss, Milmor, pleer, ShaneJones
-Version:	2.8.4
+Version:	3.0
 Stable tag:	trunk
 Author:		Alex Moss, Marco Milesi, Peadig, Shane Jones
 Author URI:   https://profiles.wordpress.org/milmor/
 Tags: eu cookie, cookies, law, analytics, european, italia, garante, privacy, eu cookie law, italy, cookie, consent, europe
-Requires at least: 3.8
-Tested up to: 4.3
+Requires at least: 4.4
+Tested up to: 4.9
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -23,6 +23,7 @@ https://www.youtube.com/watch?v=6f2qxC3GZJ8
 Demo: [www.sanpellegrinoterme.gov.it](http://www.sanpellegrinoterme.gov.it)
 
 = Features =
+* **GDPR** compliant (if you have doubts, ask in the forum)
 * **Customizable banner** (color, position, strings)
 * Consent by **Clicking, Scrolling and Navigation**
 * Set your page, popup or custom URL for Cookie Policy
@@ -31,10 +32,9 @@ Demo: [www.sanpellegrinoterme.gov.it](http://www.sanpellegrinoterme.gov.it)
 * Compatible with **mobile** themes and plugins 
 * Compatible with **multilanguage** plugins
 * Certified for **WPML**
-* 2-layer cookie prevention
 * Shortcode to **revoke cookie consent**
 * Shortcode to show a list of cookies
-* Compatible with Disqus
+* Compatible with Disqus and Jetpack InfiniteScroll
 
 = Advanced Features =
 * Block scripts if cookies are not accepted
@@ -46,7 +46,7 @@ Simply install the plugin and follow the instructions on the Settings page.
 
 = Cookie block =
 You can lock cookies using `[cookie]` and `[/cookie]` shortcodes in every post, page and widget. You can use php functions too:
-`if ( function_exists('cookie_accepted') && cookie_accepted() ) {
+`if ( !function_exists('cookie_accepted') || cookie_accepted() ) {
     // Your code
 }`
 
@@ -64,9 +64,8 @@ Thanks to: [Gerard Weijer](http://gerardweijer.nl), [Karsten Höfner](http://www
 
 = Contributions =
 
-* Italian community [Porte Aperte sul Web](http://www.porteapertesulweb.it) for beta-testing and ideas.
+* Italian community [Porte Aperte sul Web](http://www.porteapertesulweb.it)
 * This plugin was originally developed by [Peadig](http://peadig.com/wordpress-plugins/eu-cookie-law/).
-
 
 == Installation ==
 
@@ -81,26 +80,27 @@ This section describes how to install the plugin and get it working.
 
 = Shortcodes available =
 
-You can lock parts of code in posts, pages and widget with these shortcode:
+You can block code in posts, pages and widget by wrapping it with these shortcode:
 `[cookie] ... [/cookie]`
 Parameters:
 `[cookie height="100px" width="100%" text="Hi <b>WordPress</b>"] //My code [/cookie]`
 
-To display a box (in pages/posts) with ability to revoke consent (if cookies accepted) or accept cookies (if not done yet):
+To display the button to revoke consent (if cookies accepted) or accept cookies:
 `[cookie-control]`
 
-You can also create your own link that revokes cookie consent. Just append **?nocookie=1** to your url.
+You can also revoke consent by adding **?nocookie=1** parameter to your url.
 Ex. wordpress.org/**?nocookie=1** or wordpress.org/something/**?nocookie=1**
 
 To display a list of active cookies on user client:
 `[cookie-list]`
 
 = PHP Functions available =
-You can easily verify if cookies consent has been set with:
+You can check the consent with:
 `if ( function_exists('cookie_accepted') && cookie_accepted() ) {
     // Your code
 }`
-However this will only hide wrapped code. If you want to display an info box, in php you have:
+
+If you want to display the cookie-block message:
 `generate_cookie_notice($height, $width);
 generate_cookie_notice_text($height, $width, $text);
 
@@ -109,22 +109,27 @@ if ( function_exists('cookie_accepted') && cookie_accepted() ) {
 } else {
 	generate_cookie_notice($height, $width);
 }`
-(if you omit `$text` then the default one will be used)
 
-Please note that **cookie_accepted** returns true if Eu Cookie Law plugin is set to disabled in settings panel.
+Please note that **cookie_accepted** returns true if you disable it in the settings panel, if you excluded the current page or if you are a search engine :)
 
-If you think that we should provide more shortcodes, functions, or enhance what we already provide, please let us know in [our forum](https://wordpress.org/support/plugin/eu-cookie-law).
+If you think that we should enhance something let us know in the [forum](https://wordpress.org/support/plugin/eu-cookie-law).
 
-= Auto block (sperimental*) =
+= Javascript Filters =
+Sometimes it could be useful to trigger custom actions on cookie consent, so we added useful filters.
+
+If you want to play, just download our [sample plugin](https://plugins.svn.wordpress.org/eu-cookie-law/assets/eu-cookie-law-filter.zip) and start coding!
+
+
+= Auto block =
 The plugin offers an exclusive function that allows you to block **iframes, embeds, objects and scripts** in posts, pages and widgets. This can be activated in the plugin options panel because is disabled by default.
 
-If you want to exclude a page from being filtered, you can set custom post field name **eucookielaw_exclude** to **1**. To do this, enable "Custom Fields" in "Screen Options". Then in the "Custom Fields" box enter the name, the value, and hit "Add Custom Field".
+To exclude a page from the filter set a custom post field **eucookielaw_exclude** to **1**. Just enable "Custom Fields" in "Screen Options" and in the "Custom Fields" box type the name, the value, and hit "Add Custom Field".
 
-If you want to exclude a <script> from being filtered, you can type between <script> and </script> the string **eucookielaw_exclude**. This can be achieved either by adding class="eucookielaw_exclude" or with an html comment.
+If you want to exclude a script, you can type between `<script>` and `</script>` the string **eucookielaw_exclude**.
+Ex. add **class="eucookielaw_exclude"** or a comment.
 
 = Cache =
-We are working to get the plugin fully compatible with most cache plugins.
-At the moment using a cache service could create conflicts with the plugin.
+We are working to improve cache compatibility. As for now, conflicts may occur.
 
 **WP Super Cache** (sperimental*): open the file wp-content/advanced-cache.php and add the following immediately after <?php opening:
 `if ( !isset( $_COOKIE['euCookie'] ) ){ return; }`
@@ -135,16 +140,14 @@ if ( !isset( $_COOKIE['euCookie'] ) ){ return; }
 
 function wpcache_broken_message() {`
 
-* = some features in this page are marked with "sperimental". It means that we are testing these functions. We highly suggest you to check this page regularly if you are using one of these.
-
 = WPML =
-EU Cookie Law fully supports WPML plugin. All of the front-end strings are translatable to every language using WPML's String Translation module.
+This plugin is officially certified for WPML. You can translate every string with WPML's String Translation module.
 
 WPML’s String Translation module is part of the Multilingual CMS package. To enable it, you first need to download and install it from your WPML.org account > Downloads section.
 
 Then, go to **WPML->String Translation** and use the display filter, at the top of the String Translation page, to determine which strings to display.
 
-Click on the translations link to open the translation editor and adjust the strings as you want. Be sure to click on ‘translation is complete‘ after you translate. Incomplete translations will not appear in the site.
+Click on the translations link to open the translation editor and adjust the strings as you want. Be sure to click on "translation is complete"" after you translate. Incomplete translations will not appear in the site.
 
 == Screenshots ==
 
@@ -159,6 +162,58 @@ Click on the translations link to open the translation editor and adjust the str
 9. Fully customizable
 
 == Changelog ==
+
+= 3.0 24.05.2019 - First GDPR release =
+Hello! This is our first GDPR release and hope you'll like it. Some functions have changed, so report bugs in our support forum to discuss them.
+Also, if you don't use technical cookies only, we suggest to turn AutoBlock function ON.
+
+* **Added** option to exclude script block: useful if you only wants to block iframe/embeds, but not scripts. Scripts (like Google Analytics) can be always be blocked with our placeholders
+* **Added** more javascript-oriented logic to increase cache compatibility
+* **SCROLL CONSENT** and **NAVIGATION CONSENT** automatically disabled if you use AutoBlock
+* **Added** developer filter in Javascript for consent. Take a look on our FAQ or directly head to download our [sample plugin download](https://plugins.svn.wordpress.org/eu-cookie-law/assets/eu-cookie-law-filter.zip) to start coding!
+* **Improved** [cookie-control] shortcode style to revoke consent
+* **Added** 10px in style.css for blocked cookies banner
+* Some code cleanup for faster performances
+
+= 2.13 24.04.2018 =
+* **Fixed** bug with WordPress default Youtube embeds. Thanks to @rfmcomposer + @bitmed
+* **Added** better php check to block cookies in our faq - improvement by @rfmcomposer
+
+= 2.12 23.04.2018 =
+* **GDPR**: we are working to give You the best plugin to comply GDPR. Expect news soon! Please note that we already have a shortcode you can use to let users revoke the consent (see faq) and the accept button could already be considered as an "active consent" with 1) cookie block enabled 2) scroll and navigation consent disabled
+* **Fixed** typo
+
+= 2.11 24.11.2017 =
+* Checked and confirmed WP 4.9 compatibility
+
+= 2.10 05.01.2017 =
+* **Added** filter eu_cookie_law_frontend_banner to change banner design with WordPress actions
+* **Added** filter eu_cookie_law_frontend_popup to change popup box design with WordPress actions
+* **Fixed** problem with "nocookie" url parameter in cookie-control shortcode causing bugs in accept/revoke (#reported by Carlo Di Somma, Web Napoli Agency)
+* **Enhanced** performance
+
+= 2.9.4 18.12.2016 =
+* Minor changes and WP 4.7 compatibility check
+
+= 2.9.3 06.07.2016 =
+* Minor changes and WP 4.6 compatibility check
+
+= 2.9.2 03.04.2016 =
+* Merged ac1d558 6937c2a daca37c thanks to [@stephenharris](https://profiles.wordpress.org/stephenharris/) on [git](https://github.com/WPGov/eu-cookie-law)
+* Updated wpml-config.xml
+
+= 2.9.1 31.01.2016 =
+* Added custom filter to exclude Jetpack InfiniteScroll
+
+= 2.9 30.01.2016 =
+* Improved auto block system
+* Better exclusion of search engines from the block
+* Better cache compatibility
+* Performance improvements
+
+= 2.8.5 31.12.2015 =
+* Full switch to translate.wordpress.org
+* That's all for 2015. Thank you everyone for using EU Cookie Law and Happy New Year from Peadig and WPGov!
 
 = 2.8.4 16.11.2015 =
 * Prevent bot from cookie exclude (beta) - includes mshot screenshot previews
